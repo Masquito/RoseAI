@@ -55,14 +55,15 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, train_size=train_split
 class CircleModelV0(nn.Module):
     def __init__(self):
         super().__init__()
-        self.layer1 = nn.Linear(2, 5)
-        self.relu = nn.ReLU()
-        self.layer2 = nn.Linear(5, 1)
+        self.layer1 = nn.Linear(2, 50)
+        self.silu = nn.SiLU()
+        self.layer2 = nn.Linear(50, 45)
+        self.layer3 = nn.Linear(45, 1)
         
 
     def forward(self, x):
-        x = self.relu(self.layer1(x))
-        return self.layer2(x) # x -> layer1 -> layer2 -> output
+        x = self.silu(self.layer1(x))
+        return self.layer3(self.silu(self.layer2(x))) # x -> layer1 -> layer2 -> output
 
 model_0 = CircleModelV0().to(device)
 with torch.inference_mode():
@@ -76,14 +77,14 @@ optimizer = torch.optim.Adam(model_0.parameters(), lr=0.1)
 torch.manual_seed(42)
 torch.cuda.manual_seed(42)
 
-epochs = 700
+epochs = 1000
 epoch_count = []
 loss_count = []
 test_loss_count = []
 
 X_train, y_train = X_train.to(device), y_train.to(device)
 X_test, y_test = X_test.to(device), y_test.to(device)
-
+print(X_train)
 for epoch in range(epochs):
     # Training
     model_0.train()
@@ -116,8 +117,8 @@ for epoch in range(epochs):
         loss_count.append(loss)
         test_loss_count.append(test_loss)
 
-    if epoch % 10 == 0:
-        print(f"Epoch {epoch} | Loss: {loss:.5f}, Acc: {acc:.2f}% | Test loss: {test_loss:.5f}, Test acc: {test_acc:.2f}%")
+    #if epoch % 10 == 0:
+       # print(f"Epoch {epoch} | Loss: {loss:.5f}, Acc: {acc:.2f}% | Test loss: {test_loss:.5f}, Test acc: {test_acc:.2f}%")
 
 
 plt.figure(figsize=(12, 6))
@@ -127,6 +128,7 @@ plot_decision_boundary(model_0, X_train, y_train)
 plt.subplot(1, 2, 2)
 plt.title("Test")
 plot_decision_boundary(model_0, X_test, y_test)
+plt.show()
 
 
 
