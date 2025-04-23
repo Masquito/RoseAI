@@ -1,0 +1,1 @@
+This is the repo of me learning DL. In the DragoonMoE folder is the foundation for Mixture of Experts model (architecture used by DeepSeek). The plan is to build a MoE model by exchanging transfomer FFN layer with MoE layer
